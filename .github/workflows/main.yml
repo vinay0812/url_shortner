@@ -2,25 +2,37 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:[main]
-  pull:
-    branches:[main]
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
-      -uses: actions/checkout@v3
-        with:
-        node-version : '18'
-
-      -run: npm install
-      -run: npm run build
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref  == 'refs/heads/main'
-    steps:
-      -name: deploy to render
-      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build TypeScript
+      run: npm run build
+    
+    - name: Check for linting issues
+      run: npm run lint  # if you have linting set up
+    
+    - name: Run tests
+      run: npm test  # if you have tests
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: dist/
