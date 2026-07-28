@@ -73,6 +73,9 @@ export default async function short(req: Request, res: Response) {
                 expiresAt: expiresAt
             }
         })
+
+        // userurl cache invalidation
+        await redis.unlink(`userurl:${userId}`)
         // return res.send(originalUrl)
 
         return res.status(201).json({
@@ -137,11 +140,16 @@ async function geturl(req: Request, res: Response) {
         //     id: shortUrl.id
         // }))
 
-        await redis.set(`url:${shortCode}`, JSON.stringify({
-            originalUrl: shortUrl.originalUrl,
-            id: shortUrl.id,
-            expiresAt: shortUrl.expiresAt
-        }), "EX", 3600)
+        try {
+            await redis.set(`url:${shortCode}`, JSON.stringify({
+                originalUrl: shortUrl.originalUrl,
+                id: shortUrl.id,
+                expiresAt: shortUrl.expiresAt
+            }), "EX", 3600)
+
+        } catch (error) {
+            console.log('redis error: ', error)
+        }
 
         const click = await logClick(shortUrl.id, req).catch(console.error);
         res.redirect(shortUrl.originalUrl)
@@ -226,10 +234,13 @@ async function analytics(req: Request, res: Response) {
         });
 
         // adding cache
-        await redis.set(`analytics:${shortCode}`, JSON.stringify({
-            totalClicks, clicksPerDay, clicksPerCountry
-        }), 'EX', 3600)
-
+        try {
+            await redis.set(`analytics:${shortCode}`, JSON.stringify({
+                totalClicks, clicksPerDay, clicksPerCountry
+            }), 'EX', 60)
+        } catch (error) {
+            console.log('redis error: ', error)
+        }
 
         return res.status(200).json({ totalClicks, clicksPerDay, clicksPerCountry })
 
@@ -258,8 +269,8 @@ async function getUserUrls(req: Request, res: Response) {
         }
 
         const cached = await redis.get(`userurl:${userId}`)
-        if(cached){
-            return res.status(200).json('cached')
+        if (cached) {
+            return res.status(200).json(JSON.parse(cached))
         }
 
         const urls = await prisma.url.findMany({
@@ -280,7 +291,12 @@ async function getUserUrls(req: Request, res: Response) {
 
         }
 
-        await redis.set(`userurl:${userId}`,JSON.stringify({urls}))
+        try {
+
+            await redis.set(`userurl:${userId}`, JSON.stringify(urls), 'EX', 300)
+        } catch (error) {
+            console.log('redis error: ', error)
+        }
 
         return res.status(200).json(urls)
     } catch (error) {
@@ -316,8 +332,12 @@ async function updateUrl(req: Request, res: Response) {
         }
 
         // invalidated cache
+
+        // url 
         await redis.unlink(`url:${shortCode}`)
 
+        // userurl
+        await redis.unlink(`userurl:${userId}`)
 
         const data: any = {};
 
@@ -406,6 +426,8 @@ async function deleteUrl(req: Request, res: Response) {
         // cache invalidation
 
         await redis.unlink(`url:${shortCode}`)
+        // userurl
+        await redis.unlink(`userurl:${userId}`)
 
 
         return res.status(200).json({ "message": "shortcode deleted" })
