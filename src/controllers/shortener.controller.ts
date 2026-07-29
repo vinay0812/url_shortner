@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client"
 import { createShortUrl } from "../schemas/short.schema";
 
 import redis from "../config/redis";
+import { getShortCode, getUser } from "../utils/request";
 
 
 const prisma = new PrismaClient()
@@ -14,7 +15,7 @@ export default async function short(req: Request, res: Response) {
 
         // return res.send(req.user.userId)
 
-        const { userId, name, email } = req.user
+        const { userId } = getUser(req)
 
         const { originalUrl, customShortCode, expiresIn } = req.body
 
@@ -83,6 +84,7 @@ export default async function short(req: Request, res: Response) {
             originalUrl
         })
     } catch (error) {
+        
         return res.status(500).json({ message: error })
     }
 
@@ -92,7 +94,7 @@ export default async function short(req: Request, res: Response) {
 async function geturl(req: Request, res: Response) {
 
     try {
-        const shortCode = req.params.shortcode
+       const shortCode = getShortCode(req)
 
         // check redis
 
@@ -167,7 +169,7 @@ async function logClick(urlId: number, req: Request) {
     return prisma.click.create({
         data: {
             urlId,
-            ipAddress: req.ip,
+            ipAddress: typeof req.ip === 'string' ? req.ip : req.ip?.[0], 
             source: req.headers.referer || "direct",
             device: req.headers["user-agent"] as string,
         }
@@ -181,9 +183,9 @@ async function logClick(urlId: number, req: Request) {
 async function analytics(req: Request, res: Response) {
 
     try {
-        const { userId } = req.user
+        const { userId } = getUser(req)
 
-        const shortCode = req.params.shortcode
+       const shortCode = getShortCode(req)
 
         // checking cache first
         const cached = await redis.get(`analytics:${shortCode}`)
@@ -257,7 +259,7 @@ async function getUserUrls(req: Request, res: Response) {
 
     try {
 
-        const { name, email, userId } = req.user
+        const { userId, email } = getUser(req)
         const isUserExist = await prisma.user.findUnique({
             where: {
                 email
@@ -310,11 +312,11 @@ async function getUserUrls(req: Request, res: Response) {
 async function updateUrl(req: Request, res: Response) {
     try {
 
-        const { name, email, userId } = req.user
+        const { userId } = getUser(req)
         const { originalUrl, expiresIn, isActive } = req.body
 
 
-        const shortCode = req.params.shortcode
+        const shortCode = getShortCode(req)
 
         const url = await prisma.url.findUnique({
             where: {
@@ -395,9 +397,10 @@ async function deleteUrl(req: Request, res: Response) {
 
         // return res.send(req.user);
 
-        const { name, email, userId } = req.user
+        const { userId } = getUser(req)
+        const shortCode = getShortCode(req)
 
-        const shortCode = req.params.shortcode
+         
 
         const url = await prisma.url.findFirst({
             where: {
