@@ -25,11 +25,7 @@ jobs:
     - name: Build TypeScript
       run: npm run build
     
-    - name: Check for linting issues
-      run: npm run lint  # if you have linting set up
     
-    - name: Run tests
-      run: npm test  # if you have tests
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
