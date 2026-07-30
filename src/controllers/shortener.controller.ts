@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
-import { PrismaClient } from "@prisma/client"
 import { createShortUrl } from "../schemas/short.schema";
 
 import redis from "../config/redis";
 import { getShortCode, getUser } from "../utils/request";
 
 
-const prisma = new PrismaClient()
+ import prisma from "../config/prisma";
 
 // short the url
 export default async function short(req: Request, res: Response) {

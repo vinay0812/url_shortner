@@ -5,8 +5,8 @@ import { PrismaClient } from "@prisma/client";
 
 import { createUserInput } from "../schemas/user.schema";
 import { ZodError } from "zod";
+import prisma from "../config/prisma";
 
-const prisma = new PrismaClient()
 const JWT = process.env.JWT_KEY
 
 
