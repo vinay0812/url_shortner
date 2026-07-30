@@ -7,6 +7,8 @@ import "./config/redis";
 
 const app = express()
 
+app.set("trust proxy", true);
+
 const port = process.env.PORT || 3000
 
 // for rate limmiting
