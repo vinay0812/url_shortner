@@ -73,8 +73,9 @@ async function short(req, res) {
         // userurl cache invalidation
         await redis_1.default.unlink(`userurl:${userId}`);
         // return res.send(originalUrl)
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         return res.status(201).json({
-            shorturl: `http://localhost:3000/shorten/${shortcode}`,
+            shorturl: `${baseUrl}/shorten/${shortcode}`,
             originalUrl
         });
     }

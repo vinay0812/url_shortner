@@ -79,8 +79,10 @@ export default async function short(req: Request, res: Response) {
         await redis.unlink(`userurl:${userId}`)
         // return res.send(originalUrl)
 
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
+
         return res.status(201).json({
-            shorturl: `http://localhost:3000/shorten/${shortcode}`,
+            shorturl: `${baseUrl}/shorten/${shortcode}`,
             originalUrl
         })
     } catch (error) {

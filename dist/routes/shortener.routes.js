@@ -40,17 +40,18 @@ const express_1 = require("express");
 const shortener_controller_1 = __importStar(require("../controllers/shortener.controller"));
 const validate_middleware_1 = __importDefault(require("../middlewares/validate.middleware"));
 const short_schema_1 = require("../schemas/short.schema");
+const auth_middelwares_1 = __importDefault(require("../middlewares/auth.middelwares"));
 const shortenerRouter = (0, express_1.Router)();
 // make shorturl
-shortenerRouter.post('/', (0, validate_middleware_1.default)(short_schema_1.createUrlSchema), shortener_controller_1.default);
+shortenerRouter.post('/', auth_middelwares_1.default, (0, validate_middleware_1.default)(short_schema_1.createUrlSchema), shortener_controller_1.default);
 // analytics of shortocde
-shortenerRouter.get('/analytics/:shortcode', shortener_controller_1.analytics);
+shortenerRouter.get('/analytics/:shortcode', auth_middelwares_1.default, shortener_controller_1.analytics);
 // url of loggedin user
-shortenerRouter.get('/myurls', shortener_controller_1.getUserUrls);
+shortenerRouter.get('/myurls', auth_middelwares_1.default, shortener_controller_1.getUserUrls);
 // update url
-shortenerRouter.patch('/:shortcode', (0, validate_middleware_1.default)(short_schema_1.updateUrlSchema), shortener_controller_1.updateUrl);
+shortenerRouter.patch('/:shortcode', auth_middelwares_1.default, (0, validate_middleware_1.default)(short_schema_1.updateUrlSchema), shortener_controller_1.updateUrl);
 // delete shortcode
-shortenerRouter.delete('/delete/:shortcode', shortener_controller_1.deleteUrl);
+shortenerRouter.delete('/delete/:shortcode', auth_middelwares_1.default, shortener_controller_1.deleteUrl);
 // getting shortcode
 shortenerRouter.get('/:shortcode', shortener_controller_1.geturl);
 exports.default = shortenerRouter;
