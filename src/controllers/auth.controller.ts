@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
- 
+
 import { createUserInput } from "../schemas/user.schema";
 import { ZodError } from "zod";
 
@@ -10,22 +10,22 @@ const prisma = new PrismaClient()
 const JWT = process.env.JWT_KEY
 
 
- 
 
-export default async function register(req: Request<{},createUserInput>, res: Response) {
 
-     
+export default async function register(req: Request<{}, createUserInput>, res: Response) {
+
+
     try {
         const { name, email, password } = req.body
 
         const exist = await prisma.user.findFirst({
-            where:{
-                email:email
+            where: {
+                email: email
             }
         })
 
-        if(exist){
-            return res.status(409).json({message:"user exists"})
+        if (exist) {
+            return res.status(409).json({ message: "user exists" })
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
@@ -41,7 +41,7 @@ export default async function register(req: Request<{},createUserInput>, res: Re
         return res.status(200).json({ user })
 
     } catch (error) {
-        
+
         return res.status(500).json("internal server error")
     }
 }
@@ -76,8 +76,10 @@ async function login(req: Request, res: Response) {
         return res.status(200).json(token)
 
     } catch (error) {
-        return res.status(500).json(error)
-
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
     }
 
 }
