@@ -108,3 +108,40 @@ npx prisma db push
 
 # Start development server
 npm run dev
+```
+
+---
+
+## Environment Variables
+
+```
+DATABASE_URL=your_postgresql_connection_string
+REDIS_URL=your_redis_connection_string
+JWT_KEY=your_secret_key
+PORT=3000
+NODE_ENV=development
+ 
+```
+
+---
+
+
+## CI/CD Pipeline
+
+```
+This project uses GitHub Actions for continuous integration and Render for deployment.
+
+Push code to main branch
+
+GitHub Actions runs npm ci and npm run build
+
+On successful build, Render deploy hook is triggered
+
+Render pulls latest code and redeploys
+ 
+```
+
+---
+## Author
+
+Vinay Joshi — [GitHub](https://github.com/vinay0812) · [LinkedIn](https://www.linkedin.com/in/vinayjoshi08)
