@@ -1,7 +1,7 @@
 import express from "express";
 import shortenerRouter from "./routes/shortener.routes";
 import authRouter from "./routes/auth.routes";
-import auth from "./middlewares/auth.middelwares";
+ 
 import rateLimit from "express-rate-limit";
 import "./config/redis";
 
@@ -28,7 +28,7 @@ app.get('/health',(req,res)=>{
 })
 
 app.use('/auth',rateLimiter,authRouter)
-app.use('/shorten',auth,shortenerRouter)
+app.use('/shorten',shortenerRouter)
 
 app.listen(port,()=>{
     console.log(`server is running at port ${port}`)
