@@ -2,11 +2,11 @@
 
 
 ![CI/CD Pipeline](https://github.com/vinay0812/url_shortner/actions/workflows/main.yml/badge.svg)
-[![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-46C3C6)](https://url-shortener-api.onrender.com)
+[![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-46C3C6)](https://url-shortener-api-x8pi.onrender.com/health)
 
 A production-ready URL shortening service with authentication, analytics, Redis caching, and rate limiting. Built with Node.js, TypeScript, Express, Prisma, and PostgreSQL.
 
-**Live API:** https://url-shortener-api.onrender.com
+**Live API:** https://url-shortener-api-x8pi.onrender.com
 
 ---
 
